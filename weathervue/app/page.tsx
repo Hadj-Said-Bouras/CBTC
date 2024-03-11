@@ -3,7 +3,7 @@ import Api from "./api";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="flex min-h-screen flex-col  p-24 bg-blue-200">
      <Api />
     </main>
   );

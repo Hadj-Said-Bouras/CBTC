@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { WiDaySunny, WiCloudy, WiDayShowers, WiDayThunderstorm } from 'react-icons/wi';
 
 const api = {
@@ -11,13 +11,10 @@ function Api() {
   const [search, setSearch] = useState('');
   const [weather, setWeather] = useState({});
   const [forecasts, setForecasts] = useState({});
+  const [showNotification, setShowNotification] = useState(false);
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
-    searchCity();
-  };
-
-  const searchCity = async () => {
     if (!search) return;
 
     const url = `${api.base}weather?q=${search}&appid=${api.key}`;
@@ -31,6 +28,10 @@ function Api() {
         forecast(result.coord);
       } else {
         console.log("Error: ", result.message);
+        setShowNotification(true);
+        setTimeout(() => {
+          setShowNotification(false);
+        }, 3000);
       }
     } catch (error) {
       console.error("Error fetching weather:", error);
@@ -38,10 +39,7 @@ function Api() {
   };
 
   const forecast = async (coord) => {
-    if (!coord) {
-      console.error("Error: Missing coordinates for forecast");
-      return;
-    }
+    if (!coord) return;
 
     const url = `${api.base}forecast?lat=${coord.lat}&lon=${coord.lon}&appid=${api.key}`;
 
@@ -71,58 +69,72 @@ function Api() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-lg">
-        <input
-          type="text"
-          placeholder="Enter city name"
-          onChange={(e) => setSearch(e.target.value)}
-          value={search}
-          className="border p-2 mb-4 w-full"
-        />
-        <button
-          onClick={(e) => handleSearch(e)}
-          className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition duration-300"
-        >
-          Search
-        </button>
-
-        {weather.cod === 200 && (
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">Current Weather</h2>
-            <p className="text-lg">
-              <span className="">
-                {weather.weather[0].main === 'Clear' && <WiDaySunny />}
-                {weather.weather[0].main === 'Clouds' && <WiCloudy />}
-                {weather.weather[0].main === 'Rain' && <WiDayShowers />}
-                {weather.weather[0].main === 'Thunderstorm' && <WiDayThunderstorm />}
-              </span>
-              {weather.weather[0].description}
-            </p>
-            <p className="text-lg">Temperature: {weather.main.temp} K</p>
-            <p className="text-lg">Temperature: {Math.round(weather.main.temp - 273)} °C</p>
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-200 to-green-200">
+      <div className="flex justify-center items-center py-8">
+        <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center">
+          <div className="flex mb-6">
+            <input
+              type="text"
+              placeholder="Enter city name"
+              onChange={(e) => setSearch(e.target.value)}
+              value={search}
+              className="border border-gray-300 rounded-l-lg p-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+            <button
+              onClick={handleSearch}
+              className="bg-blue-500 hover:bg-blue-600 transition-colors duration-300 text-white py-2 px-4 rounded-r-lg"
+            >
+              Search
+            </button>
           </div>
-        )}
-
-        {Object.keys(forecasts).length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">5-Day Forecast</h2>
+          {showNotification && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+              <strong className="font-bold">Error: </strong>
+              <span className="block sm:inline">City not found. Please try again.</span>
+            </div>
+          )}
+          {weather.cod === 200 && (
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+                {weather.name}, {weather.sys.country}
+              </h2>
+              <div className="flex justify-center items-center mb-4">
+                <span className="text-6xl mr-4">
+                  {weather.weather[0].main === 'Clear' && <WiDaySunny className="text-yellow-500" />}
+                  {weather.weather[0].main === 'Clouds' && <WiCloudy className="text-gray-500" />}
+                  {weather.weather[0].main === 'Rain' && <WiDayShowers className="text-blue-500" />}
+                  {weather.weather[0].main === 'Thunderstorm' && <WiDayThunderstorm className="text-yellow-600" />}
+                </span>
+                <div>
+                  <p className="text-2xl font-semibold text-gray-800">{weather.weather[0].description}</p>
+                  <p className="text-xl text-gray-600">Temperature: {Math.round(weather.main.temp - 273)} °C</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      {Object.keys(forecasts).length > 0 && (
+        <div className="flex-1 bg-white rounded-t-3xl p-8">
+          <h2 className="text-2xl font-semibold mb-6 text-gray-800">5-Day Forecast</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Object.keys(forecasts).map((date, index) => (
-              <div key={index} className="mb-4">
-                <h3 className="text-lg font-semibold mb-2">{date}</h3>
+              <div key={index} className="bg-gray-100 rounded-lg shadow-md p-6 transition-transform duration-300 hover:scale-105">
+                <h3 className="text-lg font-semibold mb-2 text-gray-700">{date}</h3>
                 <div className="flex flex-wrap">
                   {forecasts[date].map((forecast, subIndex) => (
-                    <div key={subIndex} className="mr-4 mb-4">
+                    <div key={subIndex} className="mr-4 mb-4 text-center">
                       <p className="text-sm text-gray-500">{forecast.dt_txt.split(' ')[1]}</p>
-                      <p className="text-lg">{forecast.main.temp} K</p>
+                      <p className="text-lg text-gray-600">temp: {Math.round(forecast.main.temp - 273)} °C</p>
+                      <p className="text-lg text-gray-600">wind speed: {forecast.wind.speed} m/s</p>
                     </div>
                   ))}
                 </div>
               </div>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
