@@ -2,6 +2,43 @@
 import React, { useState } from 'react';
 import { WiDaySunny, WiCloudy, WiDayShowers, WiDayThunderstorm } from 'react-icons/wi';
 
+interface WeatherData {
+  cod: number;
+  name: string;
+  sys: {
+    country: string;
+
+    
+    // Add other properties as needed
+  };
+  weather: Array<{
+    main: string;
+    description: string;
+    // Add other properties as needed
+  }>;
+  main: {
+    temp: number;
+
+    // Add other properties as needed
+  };
+  // Add other properties as needed
+}
+
+interface ForecastData {
+  [date: string]: Array<{
+    dt_txt: string;
+    main: {
+      temp: number;
+      // Add other properties as needed
+    };
+    wind: {
+      speed: number;
+      // Add other properties as needed
+    };
+    // Add other properties as needed
+  }>;
+}
+
 const api = {
   key: "ca42c9b91f5366afae64f005250483b5",
   base: 'http://api.openweathermap.org/data/2.5/',
@@ -9,11 +46,11 @@ const api = {
 
 function Api() {
   const [search, setSearch] = useState('');
-  const [weather, setWeather] = useState({});
-  const [forecasts, setForecasts] = useState({});
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [forecasts, setForecasts] = useState<ForecastData>({});
   const [showNotification, setShowNotification] = useState(false);
 
-  const handleSearch = async (e) => {
+  const handleSearch = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (!search) return;
 
@@ -38,7 +75,7 @@ function Api() {
     }
   };
 
-  const forecast = async (coord) => {
+  const forecast = async (coord: { lat: number; lon: number }) => {
     if (!coord) return;
 
     const url = `${api.base}forecast?lat=${coord.lat}&lon=${coord.lon}&appid=${api.key}`;
@@ -57,14 +94,16 @@ function Api() {
     }
   };
 
-  const organizeForecastByDays = (forecastList) => {
-    const groupedByDay = forecastList.reduce((acc, forecast) => {
-      const date = forecast.dt_txt.split(' ')[0];
-      acc[date] = acc[date] || [];
-      acc[date].push(forecast);
-      return acc;
-    }, {});
-
+  const organizeForecastByDays = (forecastList: Array<{ dt_txt: string }>) => {
+    const groupedByDay: Record<string, any[]> = forecastList.reduce(
+      (acc, forecast) => {
+        const date = forecast.dt_txt.split(' ')[0];
+        (acc[date] = acc[date] || []).push(forecast);
+        return acc;
+      },
+      {} as Record<string, any[]>
+    );
+  
     setForecasts(groupedByDay);
   };
 
@@ -93,7 +132,7 @@ function Api() {
               <span className="block sm:inline">City not found. Please try again.</span>
             </div>
           )}
-          {weather.cod === 200 && (
+          {weather?.cod === 200 && (
             <div className="text-center">
               <h2 className="text-2xl font-semibold mb-4 text-gray-800">
                 {weather.name}, {weather.sys.country}
