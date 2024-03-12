@@ -1,9 +1,10 @@
-import Image from "next/image";
+
 import Api from "./api";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col  p-24 bg-blue-200">
+    <main className="bg-blue-200">
+      <h1 className="text-center text-white text-4xl pt-5 font-bold">Weather Web App</h1>
      <Api />
     </main>
   );
