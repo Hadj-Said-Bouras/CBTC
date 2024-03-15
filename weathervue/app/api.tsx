@@ -1,6 +1,5 @@
 "use client"
 import React, { useState } from 'react';
-import { WiDaySunny, WiCloudy, WiDayShowers, WiDayThunderstorm } from 'react-icons/wi';
 
 interface WeatherData {
   cod: number;
@@ -35,7 +34,7 @@ interface ForecastData {
 
 const api = {
   key: "ca42c9b91f5366afae64f005250483b5",
-  base: 'http://api.openweathermap.org/data/2.5/',
+  base: 'https://api.openweathermap.org/data/2.5/',
 };
 
 function Api() {
