@@ -1,9 +1,7 @@
-// Importing necessary dependencies and icons from react-icons library
 "use client"
 import React, { useState } from 'react';
 import { WiDaySunny, WiCloudy, WiDayShowers, WiDayThunderstorm } from 'react-icons/wi';
 
-// Type definition for the structure of weather data received from the API
 interface WeatherData {
   cod: number;
   name: string;
@@ -16,10 +14,13 @@ interface WeatherData {
   }>;
   main: {
     temp: number;
+    humidity: number;
+  };
+  wind: {
+    speed: number;
   };
 }
 
-// Type definition for the structure of forecast data received from the API
 interface ForecastData {
   [date: string]: Array<{
     dt_txt: string;
@@ -32,79 +33,107 @@ interface ForecastData {
   }>;
 }
 
-// API configuration object
 const api = {
   key: "ca42c9b91f5366afae64f005250483b5",
   base: 'http://api.openweathermap.org/data/2.5/',
 };
 
-// Main component for fetching weather data and rendering UI
 function Api() {
-  // State variables using the useState hook
   const [search, setSearch] = useState('');
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [forecasts, setForecasts] = useState<ForecastData>({});
+  const [weather, setWeather] = useState<WeatherData | null>({
+    cod: 200,
+    name: 'London',
+    sys: {
+      country: 'GB',
+    },
+    weather: [
+      {
+        main: 'Clouds',
+        description: 'broken clouds',
+      },
+    ],
+    main: {
+      temp: 288.15,
+      humidity: 60,
+    },
+    wind: {
+      speed: 3.6,
+    },
+  });
+  const [forecasts, setForecasts] = useState<ForecastData>({
+    '2023-05-01': [
+      {
+        dt_txt: '2023-05-01 12:00:00',
+        main: {
+          temp: 290.15,
+        },
+        wind: {
+          speed: 4.1,
+        },
+      },
+      // ... add more forecast data for the day
+    ],
+    '2023-05-02': [
+      {
+        dt_txt: '2023-05-02 12:00:00',
+        main: {
+          temp: 292.15,
+        },
+        wind: {
+          speed: 3.2,
+        },
+      },
+      // ... add more forecast data for the day
+    ],
+    // ... add more forecast data for other days
+  });
   const [showNotification, setShowNotification] = useState(false);
 
-  // Function to handle the search button click
-  const handleSearch = async (e: React.FormEvent<HTMLButtonElement>) => {
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!search) return;
 
-    // Constructing the URL for weather data based on the search query
     const url = `${api.base}weather?q=${search}&appid=${api.key}`;
 
-    try {
-      // Fetching weather data from the API
-      const response = await fetch(url);
-      const result = await response.json();
-
-      if (result.cod === 200) {
-        // If the API request is successful, update the weather state and fetch forecasts
-        setWeather(result);
-        forecast(result.coord);
-      } else {
-        // If there's an error, log it and display a notification
-        console.log("Error: ", result.message);
-        setShowNotification(true);
-        setTimeout(() => {
-          setShowNotification(false);
-        }, 3000);
-      }
-    } catch (error) {
-      // Log any errors that occur during the API request
-      console.error("Error fetching weather:", error);
-    }
+    fetch(url)
+      .then(response => response.json())
+      .then(result => {
+        if (result.cod === 200) {
+          setWeather(result);
+          forecast(result.coord);
+        } else {
+          console.log("Error: ", result.message);
+          setShowNotification(true);
+          setTimeout(() => {
+            setShowNotification(false);
+          }, 3000);
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching weather:", error);
+      });
   };
 
-  // Function to fetch forecast data based on coordinates
-  const forecast = async (coord: { lat: number; lon: number }) => {
+  const forecast = (coord: { lat: number; lon: number }) => {
     if (!coord) return;
 
-    // Constructing the URL for forecast data based on coordinates
     const url = `${api.base}forecast?lat=${coord.lat}&lon=${coord.lon}&appid=${api.key}`;
 
-    try {
-      // Fetching forecast data from the API
-      const response = await fetch(url);
-      const result = await response.json();
-
-      if (result.cod === "200") {
-        // If the API request is successful, organize and update forecast data
-        organizeForecastByDays(result.list);
-      } else {
-        // If there's an error, log it
-        console.log("Error fetching forecast: ", result.message);
-      }
-    } catch (error) {
-      // Log any errors that occur during the API request
-      console.error("Error fetching forecast:", error);
-    }
+    fetch(url)
+      .then(response => response.json())
+      .then(result => {
+        if (result.cod === "200") {
+          organizeForecastByDays(result.list);
+        } else {
+          console.log("Error fetching forecast: ", result.message);
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching forecast:", error);
+      });
   };
 
-  // Function to organize forecast data by days
   const organizeForecastByDays = (forecastList: Array<{ dt_txt: string }>) => {
-    // Grouping forecast data by day using reduce function
     const groupedByDay: Record<string, any[]> = forecastList.reduce(
       (acc, forecast) => {
         const date = forecast.dt_txt.split(' ')[0];
@@ -113,89 +142,86 @@ function Api() {
       },
       {} as Record<string, any[]>
     );
-  
-    // Updating the forecasts state with the organized data
+
     setForecasts(groupedByDay);
   };
 
-  // JSX rendering of the component
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-200 to-green-200">
-      <div className="flex justify-center items-center py-8">
-        <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center">
-          <div className="flex mb-6">
-            {/* Input for entering city name */}
-            <input
-              type="text"
-              placeholder="Enter city name"
-              onChange={(e) => setSearch(e.target.value)}
-              value={search}
-              className="border border-gray-300 rounded-l-lg p-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-            {/* Button to trigger the search */}
-            <button
-              onClick={handleSearch}
-              className="bg-blue-500 hover:bg-blue-600 transition-colors duration-300 text-white py-2 px-4 rounded-r-lg"
-            >
-              Search
-            </button>
-          </div>
-          {/* Notification for city not found */}
-          {showNotification && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-              <strong className="font-bold">Error: </strong>
-              <span className="block sm:inline">City not found. Please try again.</span>
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-sky-500 to-indigo-500">
+      <div className="w-full max-w-4xl rounded-3xl overflow-hidden shadow-lg">
+        <div className="grid grid-cols-1 md:grid-cols-2">
+          <div className="relative">
+            <div className="absolute inset-0 z-0">
+              <img
+                src="https://images.unsplash.com/photo-1682687220305-ce8a9ab237b1?q=80&w=1887&auto=format&fit=crop&w=675&q=80"
+                alt="Weather Background"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-700 to-indigo-900 opacity-75"></div>
             </div>
-          )}
-          {/* Displaying weather information if available */}
-          {weather?.cod === 200 && (
-            <div className="text-center">
-              <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-                {weather.name}, {weather.sys.country}
-              </h2>
-              <div className="flex justify-center items-center mb-4">
-                {/* Weather icon based on weather condition */}
-                <span className="text-6xl mr-4">
-                  {weather.weather[0].main === 'Clear' && <WiDaySunny className="text-yellow-500" />}
-                  {weather.weather[0].main === 'Clouds' && <WiCloudy className="text-gray-500" />}
-                  {weather.weather[0].main === 'Rain' && <WiDayShowers className="text-blue-500" />}
-                  {weather.weather[0].main === 'Thunderstorm' && <WiDayThunderstorm className="text-yellow-600" />}
-                </span>
-                <div>
-                  {/* Displaying weather description and temperature */}
-                  <p className="text-2xl font-semibold text-gray-800">{weather.weather[0].description}</p>
-                  <p className="text-xl text-gray-600">Temperature: {Math.round(weather.main.temp - 273)} °C</p>
-                </div>
+            <div className="relative z-10 p-8 text-white">
+              <div className="mb-4">
+                <h2 className="text-2xl font-bold">{weather?.name}, {weather?.sys.country}</h2>
+                <p className="text-lg" suppressHydrationWarning>{new Date().toLocaleDateString()}</p>
+              </div>
+              <div>
+                <h1 className="text-6xl font-bold mb-2">{weather ? Math.round(weather.main.temp - 273) + "°C" : ""}</h1>
+                <p className="text-2xl">{weather?.weather[0].description}</p>
               </div>
             </div>
-          )}
+          </div>
+          <div className="bg-gray-100 p-8">
+            <div className="mb-6">
+              <form onSubmit={handleSearch} className="flex">
+                <input
+                  type="text"
+                  placeholder="Enter city name"
+                  onChange={(e) => setSearch(e.target.value)}
+                  value={search}
+                  className="flex-grow px-4 py-2 mr-2 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+                <button
+                  type="submit"
+                  className="bg-indigo-500 hover:bg-indigo-600 transition-colors duration-300 text-white py-2 px-4 rounded-lg"
+                >
+                  Search
+                </button>
+              </form>
+            </div>
+            {showNotification && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <strong className="font-bold">Error: </strong>
+                <span className="block sm:inline">City not found. Please try again.</span>
+              </div>
+            )}
+            <ul className="mb-6">
+              <li className="flex justify-between mb-2">
+                <span className="font-bold text-sm uppercase">Precipitation</span>
+                <span>{weather?.weather[0].description.includes("rain") ? "Yes" : "No"}</span>
+              </li>
+              <li className="flex justify-between mb-2">
+                <span className="font-bold text-sm uppercase">Humidity</span>
+                <span>{weather?.main.humidity}%</span>
+              </li>
+              <li className="flex justify-between">
+                <span className="font-bold text-sm uppercase">Wind</span>
+                <span>{weather?.wind.speed} m/s</span>
+              </li>
+            </ul>
+            <div className="mb-6">
+  <h3 className="text-lg font-bold mb-2">Forecast</h3>
+  <div className="flex overflow-x-auto">
+    {Object.keys(forecasts).map((date, index) => (
+      <div key={index} className={`flex-shrink-0 ${index === 0 ? 'bg-indigo-500 text-white' : 'bg-gray-200'} rounded-lg mr-4 p-4`}>
+        <p className="text-sm font-bold">{new Date(date).toLocaleDateString('en-US', { weekday: 'short' })}</p>
+        <p className="text-lg font-bold">{Math.round(forecasts[date][0].main.temp - 273)}°C</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      {/* Displaying 5-day forecast if available */}
-      {Object.keys(forecasts).length > 0 && (
-        <div className="flex-1 bg-white rounded-t-3xl p-8">
-          <h2 className="text-2xl font-semibold mb-6 text-gray-800">5-Day Forecast</h2>
-          {/* Grid layout for the 5-day forecast */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Object.keys(forecasts).map((date, index) => (
-              <div key={index} className="bg-gray-100 rounded-lg shadow-md p-6 transition-transform duration-300 hover:scale-105">
-                {/* Displaying date for each day */}
-                <h3 className="text-lg font-semibold mb-2 text-gray-700">{date}</h3>
-                <div className="flex flex-wrap">
-                  {/* Displaying forecast details for each time slot in a day */}
-                  {forecasts[date].map((forecast, subIndex) => (
-                    <div key={subIndex} className="mr-4 mb-4 text-center">
-                      <p className="text-sm text-gray-500">{forecast.dt_txt.split(' ')[1]}</p>
-                      <p className="text-lg text-gray-600">temp: {Math.round(forecast.main.temp - 273)} °C</p>
-                      <p className="text-lg text-gray-600">wind speed: {forecast.wind.speed} m/s</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
