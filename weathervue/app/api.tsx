@@ -157,7 +157,7 @@ function Api() {
                 alt="Weather Background"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-700 to-indigo-900 opacity-75"></div>
+              
             </div>
             <div className="relative z-10 p-8 text-white">
               <div className="mb-4">
@@ -209,10 +209,10 @@ function Api() {
               </li>
             </ul>
             <div className="mb-6">
-  <h3 className="text-lg font-bold mb-2">Forecast</h3>
-  <div className="flex overflow-x-auto">
-    {Object.keys(forecasts).map((date, index) => (
-      <div key={index} className={`flex-shrink-0 ${index === 0 ? 'bg-indigo-500 text-white' : 'bg-gray-200'} rounded-lg mr-4 p-4`}>
+          <h3 className="text-lg font-bold mb-2">Forecast</h3>
+          <div className="flex overflow-x-auto">
+            {Object.keys(forecasts).map((date, index) => (
+          <div key={index} className={`flex-shrink-0 ${index === 0 ? 'bg-indigo-500 text-white' : 'bg-gray-200'} rounded-lg mr-4 p-4`}>
         <p className="text-sm font-bold">{new Date(date).toLocaleDateString('en-US', { weekday: 'short' })}</p>
         <p className="text-lg font-bold">{Math.round(forecasts[date][0].main.temp - 273)}°C</p>
                   </div>
