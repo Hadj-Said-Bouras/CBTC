@@ -19,7 +19,8 @@ function TodoApp() {
   const handleAddTask = (e) => {
     e.preventDefault();
     if (newTask.trim() !== "") {
-      setPendingTasks([...pendingTasks, { text: newTask, completed: false }]);
+      const date = new Date().toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: 'numeric' });
+      setPendingTasks([...pendingTasks, { text: newTask, completed: false, date }]);
       setNewTask("");
     }
   };
@@ -98,7 +99,10 @@ function TodoApp() {
                   key={index}
                   className="flex justify-between items-center mb-2 bg-gray-200 p-2 rounded-lg"
                 >
-                  <p className="text-gray-800">{task.text}</p>
+                  <div>
+                    <p className="text-gray-800">{task.text}</p>
+                    <p className="text-xs text-gray-600">{task.date}</p>
+                  </div>
                   <div className="flex">
                     <BsCheckSquareFill
                       onClick={() => toggleTaskCompletion(index)}
@@ -128,7 +132,10 @@ function TodoApp() {
               key={index}
               className="flex justify-between items-center mb-2 bg-gray-200 p-2 rounded-lg"
             >
-              <p className="text-gray-800 line-through">{task.text}</p>
+              <div>
+                <p className="text-gray-800 line-through">{task.text}</p>
+                <p className="text-xs text-gray-600">{task.date}</p>
+              </div>
               <BsFillTrashFill
                 onClick={() => moveTaskToPending(task)}
                 className="text-red-500 cursor-pointer"
