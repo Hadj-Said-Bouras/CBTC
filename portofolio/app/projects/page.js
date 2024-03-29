@@ -3,7 +3,7 @@ import NavBar from '../../components/navbar'
 
 function Projects() {
   return (
-    <div className='bg-gradient-to-r from-[#8c6d53] to-[#6fa0ae] h-screen overflow-hidden '>
+    <div className='bg-gradient-to-r from-[#6e5742] to-[#335e66] h-full w-full pb-80 '>
         <NavBar />
         <ProjectsComponent />
 

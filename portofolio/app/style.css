@@ -9,6 +9,7 @@
   
   .skill-button:hover {
     background-color: #2b6cb0;
+    background: #335e66;
     transform: scale(1.1);
   }
   

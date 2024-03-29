@@ -4,10 +4,10 @@ import React from 'react';
 
 function ProjectsComponent() {
   return (
-    <div className='h-screen'>
+    <div className='h-full flex-wrap lg:flex-nowrap'>
       <h1 className='text-center mt-20 text-4xl font-semibold text-white'>Chosen Projects</h1>
       <div className='flex flex-row flex-wrap gap-10 justify-center mt-20 h-full'>
-        <div className='relative w-[350px] h-[240px] bg-black flex justify-center hover:scale-1'>
+        <div className='relative w-[350px] h-[240px] bg-black flex justify-center hover:scale-110  transition-all delay-100 ease-in'>
           
             <div className='brightness-75 
 
@@ -30,11 +30,9 @@ w-full h-full  overflow-hidden'>
                   <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus veritatis assumenda nesciunt.</p>
             </div>
         </div>
-        <div className='relative w-[350px] h-[240px] bg-black flex justify-center hover:scale-1'>
+        <div className='relative w-[350px] h-[240px] bg-black flex justify-center hover:scale-110  transition-all delay-300 ease-in'>
           
-            <div className='brightness-75 
-
-w-full h-full  overflow-hidden'>
+            <div className='brightness-75 w-full h-full  overflow-hidden '>
               <Image src='/SpaceWebsite.png'
                 sizes="400px"
                 style={{
@@ -53,7 +51,7 @@ w-full h-full  overflow-hidden'>
                   <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus veritatis assumenda nesciunt.</p>
             </div>
         </div>
-        <div className='relative w-[350px] h-[240px] bg-black flex justify-center hover:scale-1'>
+        <div className='relative w-[350px] h-[240px] bg-black flex justify-center hover:scale-110  transition-all delay-300 ease-in'>
           
             <div className='brightness-75 
 
@@ -76,7 +74,7 @@ w-full h-full  overflow-hidden'>
                   <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus veritatis assumenda nesciunt.</p>
             </div>
         </div>
-        <div className='relative w-[350px] h-[240px] bg-black flex justify-center hover:scale-1'>
+        <div className='relative w-[350px] h-[240px] bg-black flex justify-center hover:scale-110  transition-all delay-300 ease-in'>
           
             <div className='brightness-75 
 
@@ -99,7 +97,7 @@ w-full h-full  overflow-hidden'>
                   <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus veritatis assumenda nesciunt.</p>
             </div>
         </div>
-        <div className='absolute bottom-10 left-0 right-0 text-center text-white'>
+        <div className='lg:bottom-[-100px] lg:absolute left-0 right-0 text-center text-white'>
           <button>
             Want to see more? <span className='underline'>Github</span>
           </button>

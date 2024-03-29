@@ -5,9 +5,10 @@ import MainHero from "../components/mainhero"
 
 export default function Home() {
   return (
-    <main className="bg-gradient-to-r from-[#8c6d53] to-[#6fa0ae] h-screen">
+    <main className="bg-gradient-to-r from-[#6e5742] to-[#335e66] h-full  md:pb-40">
      <NavBar />
      <MainHero />
     </main>
   );
 }
+
